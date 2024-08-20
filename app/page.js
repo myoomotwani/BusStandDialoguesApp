@@ -27,6 +27,7 @@ export default function Home() {
     const [isCorrect, setIsCorrect] = useState(false);
     const lastSellerRef = useRef(null);
     const [isClient, setIsClient] = useState(false);
+    const [allowContinue, setAllowContinue] = useState(false);
 
     useEffect(() => {
       // This ensures the code runs only on the client side
@@ -35,7 +36,7 @@ export default function Home() {
 
     // Scroll to the last seller dialogue when the "Continue" button is pressed
     useEffect(() => {
-        if (lastSellerRef.current) {
+        if (lastSellerRef.current && dialogues[currentDialogueIndex][0] === "Seller") {
             lastSellerRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [currentDialogueIndex]);
@@ -52,6 +53,7 @@ export default function Home() {
 
           if (checkDialogue(speechResult, dialogues[currentDialogueIndex][1])) {
               setIsCorrect(true);
+              setAllowContinue(true);
           } else {
               setIsCorrect(false);
           }
@@ -94,19 +96,20 @@ export default function Home() {
           setCurrentDialogueIndex(currentDialogueIndex + 2);
           setIsCorrect(false);
           setUserSpeech("");
+          setAllowContinue(false);
       }
   };
 
   return (
-    <main className="bg-white py-3 h-screen text-black overflow-x-hidden">
-      <div className="w-full flex flex-col space-y-3 items-center justify-center">
+    <main className="bg-white py-1 md:py-3 h-screen text-black overflow-x-hidden">
+      <div className="w-full flex flex-col space-y-1 sm:space-y-2 md:space-y-3 items-center justify-center">
         <span className="text-[#036A8C] font-extrabold text-2xl">Hindi Harmony</span>
         <div className="bg-[url('/busStandImage.jpeg')] h-72 w-screen bg-center bg-cover bg-no-repeat bg-fixed"></div>
-        <div className="w-[90%] sm:w-[70%] flex flex-col items-center justify-center shadow-[#00000017] shadow-lg drop-shadow-lg rounded-lg">
-          <div className="bg-[#036A8C] text-white text-xs sm:text-base rounded-t-lg p-3 w-full z-10">
+        <div className="w-[90%] sm:w-[80%] md:w-[70%] flex flex-col items-center justify-center shadow-[#00000017] shadow-lg drop-shadow-lg rounded-lg">
+          <div className="bg-[#036A8C] text-white text-xs sm:text-base rounded-t-lg px-3 py-1 md:p-3 w-full z-10">
             Hindi Learning App - Bus Stand Dialogue
           </div>
-          <div className="flex items-center justify-end w-full flex-col space-y-3 rounded-2xl p-3 overflow-y-scroll max-h-52">
+          <div className="flex items-center justify-start w-full flex-col space-y-3 rounded-2xl p-3 overflow-y-scroll h-40 md:h-48">
                 {dialogues.slice(0, currentDialogueIndex + 1).map((dialogue, index) => (
                     <div 
                         key={index} 
@@ -122,39 +125,54 @@ export default function Home() {
                                 unoptimized 
                                 className="w-7 sm:w-9" 
                             />
-                            <div className="flex items-center justify-center space-x-2 rounded-lg p-1 sm:px-3 bg-[#EFEFEF]">
-                              <button onClick={() => {
-                                playAudio(dialogue[2])
-                              }}>
-                                <Image 
-                                    src="/speakButton.png" 
-                                    alt="speak" 
-                                    width={15} 
-                                    height={10} 
-                                    className="w-3 sm:w-4" 
-                                />
-                              </button>
+                            <div className={`flex flex-col items-center justify-center space-y-2 rounded-lg p-1 sm:px-3 ${dialogue[0] === "Seller" && "bg-[#efefef]"} ${dialogue[0] === "You" && "bg-[#036A8C1A]"} ${index === currentDialogueIndex && dialogue[0] === "You" && userSpeech && !isCorrect && "bg-[#FEDFDF]"}`}>
+                              <div className="flex items-center justify-center space-x-2">
+                                <button onClick={() => {
+                                  playAudio(dialogue[2])
+                                }}>
+                                  <Image 
+                                      src="/speakButton.png" 
+                                      alt="speak" 
+                                      width={15} 
+                                      height={10} 
+                                      className="w-3 sm:w-4" 
+                                  />
+                                </button>
                                 <span className="text-xs sm:text-sm">{dialogue[1]}</span>
+                              </div>
+                              {currentDialogueIndex < 11 && dialogue[0] === "You" && index === currentDialogueIndex && (
+                <div className="user-input">
+                  {userSpeech !== "" && isCorrect ? null : <button onClick={startRecognition} className="rounded-3xl p-2 px-4 bg-[#036A8C] text-white flex items-center justify-center space-x-2 text-xs">
+                      <Image src={"/microphone.png"} alt="speak" width={15} height={15} />
+                      <span>
+                        {userSpeech === "" && "Speak"}
+                        {userSpeech !== "" && !isCorrect && "Speak Again"}
+                      </span>
+                  </button>}
+                </div>
+            )}
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {currentDialogueIndex < 11 && dialogues[currentDialogueIndex][0] === "You" && (
+            {/* {currentDialogueIndex < 11 && dialogues[currentDialogueIndex][0] === "You" && (
                 <div className="user-input">
-                    <button onClick={startRecognition} className="border border-black rounded-xl p-3">🎤 Speak</button>
-                    <p>Detected Speech: {userSpeech}</p>
+                    <button onClick={startRecognition} className="rounded-3xl p-2 px-4 bg-[#036A8C] text-white flex items-center justify-center space-x-2">
+                      <Image src={"/microphone.png"} alt="speak" width={18} height={18} />
+                      <span>Speak</span>
+                    </button>
+                    <p>{userSpeech ? `Detected Speech: ${userSpeech}` : ""}</p>
                     {isCorrect ? <p>✅ Correct</p> : <p>❌ Try Again</p>}
                 </div>
-            )}
-
+            )} */}
+            
           <div className="border-t border-[#D9D9D9] w-full flex items-center justify-center z-10 py-2">
-          {dialogues[currentDialogueIndex][0] === "You" && isCorrect && (
-            <button onClick={proceedToNext} className="bg-[#036A8C] p-3 text-white flex items-center justify-center space-x-2 rounded-3xl">
-              <Image src={"/continue.png"} alt="continue" width={20} height={20} />
+            <button onClick={proceedToNext} className={dialogues[currentDialogueIndex][0] === "You" && `${allowContinue ? "bg-[#036A8C] text-white" : "bg-[#CACACA] text-[#9F9F9F]"} p-1 sm:p-3 flex items-center justify-center space-x-1 sm:space-x-2 rounded-3xl text-xs sm:text-sm md:text-base`} disabled={!allowContinue}>
+              <Image src={allowContinue ? "/continue.png" : "/continueBlack.png"} alt="continue" width={20} height={20} className="w-4" />
               <span>Continue</span>
-            </button>)}
+            </button>
           </div>
         </div>
       </div>
