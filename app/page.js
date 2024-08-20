@@ -109,11 +109,11 @@ export default function Home() {
           <div className="bg-[#036A8C] text-white text-xs sm:text-base rounded-t-lg px-3 py-1 md:p-3 w-full z-10">
             Hindi Learning App - Bus Stand Dialogue
           </div>
-          <div className="flex items-center justify-start w-full flex-col space-y-3 rounded-2xl p-3 overflow-y-scroll h-40 md:h-48">
+          <div className="flex items-start justify-end w-full flex-col space-y-3 rounded-2xl p-3 overflow-y-scroll h-40 md:h-48">
                 {dialogues.slice(0, currentDialogueIndex + 1).map((dialogue, index) => (
                     <div 
                         key={index} 
-                        className={`w-full flex items-center justify-${dialogue[0] === "Seller" ? "end" : "end"}`}
+                        className={`w-full flex items-center justify-${dialogue[0] === "Seller" ? "start" : "end"}`}
                         ref={dialogue[0] === "Seller" && index === currentDialogueIndex ? lastSellerRef : null}
                     >
                         <div className={`flex w-full items-center justify-${dialogue[0] === "Seller" ? "start" : "end"} space-x-2`}>
