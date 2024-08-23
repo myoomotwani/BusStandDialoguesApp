@@ -1,6 +1,8 @@
 "use client";
 import Image from "next/image";
+import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import React, {useEffect, useState, useRef} from "react";
+
 
 const dialogues = [
     ["Seller", "नमस्ते", "/audios/audio1.mp3" ],
@@ -35,15 +37,19 @@ export default function Home() {
   }, []);
 
     // Scroll to the last seller dialogue when the "Continue" button is pressed
-    useEffect(() => {
-        if (lastSellerRef.current && dialogues[currentDialogueIndex][0] === "Seller") {
-            lastSellerRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [currentDialogueIndex]);
+    // useEffect(() => {
+    //     if (lastSellerRef.current && dialogues[currentDialogueIndex][0] === "Seller") {
+    //         lastSellerRef.current.scrollIntoView({ behavior: 'smooth' });
+    //     }
+    // }, [currentDialogueIndex]);
 
     const startRecognition = () => {
       if (!isClient) return;
-
+      enqueueSnackbar("Listening...", {
+        variant: "info",
+        hideIconVariant: true,
+        autoHideDuration: 2000,
+      })
       const recognition = new window.webkitSpeechRecognition();
       recognition.lang = 'hi-IN';
 
@@ -54,33 +60,35 @@ export default function Home() {
           if (checkDialogue(speechResult, dialogues[currentDialogueIndex][1])) {
               setIsCorrect(true);
               setAllowContinue(true);
+              enqueueSnackbar('Correct!', {
+                autoHideDuration: 2000,
+                variant: 'success',
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'right'
+                }
+                })
           } else {
               setIsCorrect(false);
+              enqueueSnackbar('Try again!', {
+                autoHideDuration: 2000,
+                variant: 'error',
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'right'
+                }
+              })
           }
       };
-
       recognition.start();
+      
   };
 
-    // // Speech recognition setup
-    // const recognition = new window.webkitSpeechRecognition();
-    // recognition.lang = 'hi-IN';
 
     const playAudio = (audioSrc) => {
       const audio = new Audio(audioSrc);
       audio.play();
     };
-
-    // recognition.onresult = function(event) {
-    //     const speechResult = event.results[0][0].transcript;
-    //     setUserSpeech(speechResult);
-
-    //     if (checkDialogue(speechResult, dialogues[currentDialogueIndex][1])) {
-    //         setIsCorrect(true);
-    //     } else {
-    //         setIsCorrect(false);
-    //     }
-    // };
 
     const checkDialogue = (speechResult, expectedDialogue) => {
         return speechResult.trim() === expectedDialogue.trim();
@@ -101,22 +109,24 @@ export default function Home() {
   };
 
   return (
-    <main className="bg-white py-1 md:py-3 h-screen text-black overflow-x-hidden">
-      <div className="w-full flex flex-col space-y-1 sm:space-y-2 md:space-y-3 items-center justify-center">
+    <main className="bg-white py-1 xl:py-3 h-screen text-black overflow-x-hidden">
+      <SnackbarProvider dense />
+      <div className="w-full flex flex-col space-y-1 sm:space-y-2 xl:space-y-3 items-center justify-center">
         <span className="text-[#036A8C] font-extrabold text-2xl">Hindi Harmony</span>
-        <div className="bg-[url('/busStandImage.jpeg')] h-72 w-screen bg-center bg-cover bg-no-repeat bg-fixed"></div>
+        <div className="bg-[url('/busStandImage.jpeg')] h-60 w-screen bg-center bg-cover bg-no-repeat bg-fixed"></div>
         <div className="w-[90%] sm:w-[80%] md:w-[70%] flex flex-col items-center justify-center shadow-[#00000017] shadow-lg drop-shadow-lg rounded-lg">
           <div className="bg-[#036A8C] text-white text-xs sm:text-base rounded-t-lg px-3 py-1 md:p-3 w-full z-10">
             Hindi Learning App - Bus Stand Dialogue
           </div>
-          <div className="flex items-start justify-end w-full flex-col space-y-3 rounded-2xl p-3 overflow-y-scroll h-40 md:h-48">
+          <div className="overflow-y-scroll w-full space-y-3 rounded-2xl p-3 h-40 md:h-48 xl:h-56">
                 {dialogues.slice(0, currentDialogueIndex + 1).map((dialogue, index) => (
                     <div 
                         key={index} 
-                        className={`w-full flex items-center justify-${dialogue[0] === "Seller" ? "start" : "end"}`}
-                        ref={dialogue[0] === "Seller" && index === currentDialogueIndex ? lastSellerRef : null}
+                        className={`w-full flex items-center justify-end`}
+                        // ref={dialogue[0] === "Seller" && index === currentDialogueIndex ? lastSellerRef : null}
                     >
-                        <div className={`flex w-full items-center justify-${dialogue[0] === "Seller" ? "start" : "end"} space-x-2`}>
+                      <div className={`w-full flex items-center hello justify-${index % 2 === 0 ? "start" : "end"}`}>
+                        <div className={`flex items-center justify-center space-x-2`}>
                             <Image 
                                 src={dialogue[0] === "Seller" ? "/man1.png" : "/man2.png"} 
                                 alt="person" 
@@ -138,10 +148,10 @@ export default function Home() {
                                       className="w-3 sm:w-4" 
                                   />
                                 </button>
-                                <span className="text-xs sm:text-sm">{dialogue[1]}</span>
+                                <span className="text-sm sm:text-base lg:text-lg">{dialogue[1]}</span>
                               </div>
                               {currentDialogueIndex < 11 && dialogue[0] === "You" && index === currentDialogueIndex && (
-                <div className="user-input">
+                <div className="user-input flex items-center justify-center flex-col space-y-1">
                   {userSpeech !== "" && isCorrect ? null : <button onClick={startRecognition} className="rounded-3xl p-2 px-4 bg-[#036A8C] text-white flex items-center justify-center space-x-2 text-xs">
                       <Image src={"/microphone.png"} alt="speak" width={15} height={15} />
                       <span>
@@ -149,12 +159,15 @@ export default function Home() {
                         {userSpeech !== "" && !isCorrect && "Speak Again"}
                       </span>
                   </button>}
+                  <p className="text-xs sm:text-sm">{userSpeech ? `Detected Speech: ${userSpeech}` : ""}</p>
+                  {/* {userSpeech !== "" && isCorrect ? <p>✅ Correct</p> : <p>❌ Try Again</p>} */}
                 </div>
             )}
                             </div>
                         </div>
+                        </div>
                     </div>
-                ))}
+                ))}  
             </div>
 
             {/* {currentDialogueIndex < 11 && dialogues[currentDialogueIndex][0] === "You" && (
