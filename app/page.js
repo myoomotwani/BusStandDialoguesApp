@@ -5,22 +5,41 @@ import React, {useEffect, useState, useRef} from "react";
 
 
 const dialogues = [
-    ["Seller", "नमस्ते", "/audios/audio1.mp3" ],
-    ["You", "नमस्ते", "/audios/audio2.mp3"],
-    ["Seller", "Haan Boliye", "/audios/audio3.mp3"],
-    ["You", "क्या यह बस आगरा जाती है", "/audios/audio4.mp3"],
-    ["Seller", "हाँ, यह बस आगरा जाती है", "/audios/audio5.mp3"],
-    ["You", "टिकट कितने का है", "/audios/audio6.mp3"],
-    ["Seller", "एक टिकट का किराया तीन सौ रुपये है", "/audios/audio7.mp3"],
-    ["You", "मुझे एक टिकट चाहिए", "/audios/audio8.mp3"],
-    ["Seller", "Ye raha aapka ticket", "/audios/audio9.mp3"],
-    ["You", "धन्यवाद", "/audios/audio10.mp3"],
-    // ["Seller", "आपका स्वागत है", "/audios/audio11.mp3"],
-    // ["You", "बस कितने बजे आएगी", "../utils/audios/audio.mp3"],
-    // ["Seller", "बस पाँच बजे आएगी", "../utils/audios/audio.mp3"],
-    // ["You", "मुझे कहाँ इंतजार करना चाहिए", "../utils/audios/audio.mp3"],
-    // ["Seller", "आप प्लेटफार्म नंबर दो पर इंतजार कर सकते हैं", "../utils/audios/audio.mp3"],
-    // ["You", "ठीक है, धन्यवाद", "../utils/audios/audio.mp3"],
+    ["Seller", "Namaste", "/audios/audio1.mp3", "Hello"],
+    ["You", "Namaste", "/audios/audio2.mp3", "Hello"],
+    ["Seller", "Haan Boliye", "/audios/audio3.mp3", "Yes?"],
+    ["You", "Kya yeh bus Agra jati hai?", "/audios/audio4.mp3", "Does this bus go to Agra?"],
+    ["Seller", "Han, yeh bus Agra jati hai", "/audios/audio5.mp3", "Yes, this bus goes to Agra."],
+    ["You", "Ticket kitne ka hai?", "/audios/audio6.mp3", "How much for the ticket?"],
+    ["Seller", "Ek ticket ka kiraya 300 rupay hai", "/audios/audio7.mp3", "300rs for one ticket."],
+    ["You", "Mujhe ek ticket chaiye", "/audios/audio8.mp3", "I want one ticket."],
+    ["Seller", "Ye raha aapka ticket", "/audios/audio9.mp3", "Here's your ticket."],
+    ["You", "Dhanyawad", "/audios/audio10.mp3", "Thanks."],
+    ["Seller", "Aapka swagat hai", "/audios/audio11.mp3", "Your welcome."],
+    ["You", "Bus kitne baje aayegi?", "/audios/audio12.mp3", "When will the bus arrive?"],
+    ["Seller", "Bus paanch baje aayegi", "/audios/audio13.mp3", "The bus will be here at 5."],
+    ["You", "Mujhe kahan intezar karna chaiye", "/audios/audio14.mp3", "Where should I wait?"],
+    ["Seller", "Aap platform number 2 par intezar kar sakte hain", "/audios/audio15.mp3", "You can wait on platform number 2."],
+    ["You", "Theek hai, dhanyawad", "/audios/audio16.mp3", "Okay, thanks."],
+];
+
+const checkDialogues = [
+  ["Seller", "नमस्ते" ],
+    ["You", "नमस्ते"],
+    ["Seller", "Haan Boliye"],
+    ["You", "क्या यह बस आगरा जाती है"],
+    ["Seller", "हाँ, यह बस आगरा जाती है"],
+    ["You", "टिकट कितने का है"],
+    ["Seller", "एक टिकट का किराया तीन सौ रुपये है"],
+    ["You", "मुझे एक टिकट चाहिए"],
+    ["Seller", "Ye raha aapka ticket"],
+    ["You", "धन्यवाद"],
+    ["Seller", "आपका स्वागत है"],
+    ["You", "बस कितने बजे आएगी"],
+    ["Seller", "बस पाँच बजे आएगी"],
+    ["You", "मुझे कहां इंतजार करना चाहिए"],
+    ["Seller", "आप प्लेटफार्म नंबर दो पर इंतजार कर सकते हैं"],
+    ["You", "ठीक है धन्यवाद"],
 ];
 
 export default function Home() {
@@ -57,9 +76,10 @@ export default function Home() {
           const speechResult = event.results[0][0].transcript;
           setUserSpeech(speechResult);
 
-          if (checkDialogue(speechResult, dialogues[currentDialogueIndex][1])) {
+          if (checkDialogue(speechResult, checkDialogues[currentDialogueIndex][1])) {
               setIsCorrect(true);
               setAllowContinue(true);
+              playAudio("/audios/success.mp3")
               enqueueSnackbar('Correct!', {
                 autoHideDuration: 2000,
                 variant: 'success',
@@ -70,6 +90,7 @@ export default function Home() {
                 })
           } else {
               setIsCorrect(false);
+              playAudio("/audios/failure.mp3")
               enqueueSnackbar('Try again!', {
                 autoHideDuration: 2000,
                 variant: 'error',
@@ -150,7 +171,8 @@ export default function Home() {
                                 </button>
                                 <span className="text-sm sm:text-base lg:text-lg">{dialogue[1]}</span>
                               </div>
-                              {currentDialogueIndex < 11 && dialogue[0] === "You" && index === currentDialogueIndex && (
+                              <span>Translation: {dialogue[3]}</span>
+                              {currentDialogueIndex < 17 && dialogue[0] === "You" && index === currentDialogueIndex && (
                 <div className="user-input flex items-center justify-center flex-col space-y-1">
                   {userSpeech !== "" && isCorrect ? null : <button onClick={startRecognition} className="rounded-3xl p-2 px-4 bg-[#036A8C] text-white flex items-center justify-center space-x-2 text-xs">
                       <Image src={"/microphone.png"} alt="speak" width={15} height={15} />
@@ -169,24 +191,13 @@ export default function Home() {
                     </div>
                 ))}  
             </div>
-
-            {/* {currentDialogueIndex < 11 && dialogues[currentDialogueIndex][0] === "You" && (
-                <div className="user-input">
-                    <button onClick={startRecognition} className="rounded-3xl p-2 px-4 bg-[#036A8C] text-white flex items-center justify-center space-x-2">
-                      <Image src={"/microphone.png"} alt="speak" width={18} height={18} />
-                      <span>Speak</span>
-                    </button>
-                    <p>{userSpeech ? `Detected Speech: ${userSpeech}` : ""}</p>
-                    {isCorrect ? <p>✅ Correct</p> : <p>❌ Try Again</p>}
-                </div>
-            )} */}
             
-          <div className="border-t border-[#D9D9D9] w-full flex items-center justify-center z-10 py-2">
+          {currentDialogueIndex < 17 && <div className="border-t border-[#D9D9D9] w-full flex items-center justify-center z-10 py-2">
             <button onClick={proceedToNext} className={dialogues[currentDialogueIndex][0] === "You" && `${allowContinue ? "bg-[#036A8C] text-white" : "bg-[#CACACA] text-[#9F9F9F]"} p-1 sm:p-3 flex items-center justify-center space-x-1 sm:space-x-2 rounded-3xl text-xs sm:text-sm md:text-base`} disabled={!allowContinue}>
               <Image src={allowContinue ? "/continue.png" : "/continueBlack.png"} alt="continue" width={20} height={20} className="w-4" />
               <span>Continue</span>
             </button>
-          </div>
+          </div>}
         </div>
       </div>
     </main>
