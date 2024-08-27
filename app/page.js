@@ -24,7 +24,7 @@ const dialogues = [
 ];
 
 const checkDialogues = [
-  ["Seller", "नमस्ते" ],
+    ["Seller", "नमस्ते" ],
     ["You", "नमस्ते"],
     ["Seller", "Haan Boliye"],
     ["You", "क्या यह बस आगरा जाती है"],
@@ -43,12 +43,13 @@ const checkDialogues = [
 ];
 
 export default function Home() {
-  const [currentDialogueIndex, setCurrentDialogueIndex] = useState(1);
+  const [currentDialogueIndex, setCurrentDialogueIndex] = useState(-1);
     const [userSpeech, setUserSpeech] = useState("");
     const [isCorrect, setIsCorrect] = useState(false);
-    const lastSellerRef = useRef(null);
+    const lastTextRef = useRef(null);
     const [isClient, setIsClient] = useState(false);
     const [allowContinue, setAllowContinue] = useState(false);
+    const scrollableSectionRef = useRef(null);
 
     useEffect(() => {
       // This ensures the code runs only on the client side
@@ -56,11 +57,16 @@ export default function Home() {
   }, []);
 
     // Scroll to the last seller dialogue when the "Continue" button is pressed
-    // useEffect(() => {
-    //     if (lastSellerRef.current && dialogues[currentDialogueIndex][0] === "Seller") {
-    //         lastSellerRef.current.scrollIntoView({ behavior: 'smooth' });
-    //     }
-    // }, [currentDialogueIndex]);
+    useEffect(() => {
+      if (lastTextRef.current) {
+          lastTextRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+  }, [currentDialogueIndex]);
+    // const scrollToElement = () => {
+    //   if (lastTextRef.current) {
+    //     lastTextRef.current.scrollIntoView({ behavior: 'smooth' });
+    //   }
+    // };
 
     const startRecognition = () => {
       if (!isClient) return;
@@ -120,12 +126,14 @@ export default function Home() {
     // };
 
     const proceedToNext = () => {
-      if (isCorrect && currentDialogueIndex < dialogues.length - 1) {
+      if (currentDialogueIndex < dialogues.length - 1) {
           // Advance to the next seller's dialogue
-          setCurrentDialogueIndex(currentDialogueIndex + 2);
+          setCurrentDialogueIndex(currentDialogueIndex + 1);
           setIsCorrect(false);
           setUserSpeech("");
           setAllowContinue(false);
+          playAudio(dialogues[currentDialogueIndex + 1][2])
+          // scrollToElement();
       }
   };
 
@@ -134,12 +142,15 @@ export default function Home() {
       <SnackbarProvider dense />
       <div className="w-full flex flex-col space-y-1 sm:space-y-2 xl:space-y-3 items-center justify-center">
         <span className="text-[#036A8C] font-extrabold text-2xl">Hindi Harmony</span>
-        <div className="bg-[url('/busStandImage.jpeg')] h-60 w-screen bg-center bg-cover bg-no-repeat bg-fixed"></div>
+        <div className="bg-[url('/busStandImage.jpeg')] h-60 w-screen bg-bottom md:bg-center bg-cover bg-no-repeat bg-fixed"></div>
         <div className="w-[90%] sm:w-[80%] md:w-[70%] flex flex-col items-center justify-center shadow-[#00000017] shadow-lg drop-shadow-lg rounded-lg">
           <div className="bg-[#036A8C] text-white text-xs sm:text-base rounded-t-lg px-3 py-1 md:p-3 w-full z-10">
             Hindi Learning App - Bus Stand Dialogue
           </div>
-          <div className="overflow-y-scroll w-full space-y-3 rounded-2xl p-3 h-40 md:h-48 xl:h-56">
+          <div className="overflow-y-scroll w-full space-y-3 rounded-2xl p-3 h-60 sm:h-52 md:h-48 xl:h-56" ref={scrollableSectionRef}>
+            {currentDialogueIndex < 0 && <div className="flex items-center justify-center w-full h-full">
+              <button onClick={proceedToNext} className="bg-green-500 rounded-3xl py-2 px-4 text-white">Start</button>
+            </div>}
                 {dialogues.slice(0, currentDialogueIndex + 1).map((dialogue, index) => (
                     <div 
                         key={index} 
@@ -156,7 +167,7 @@ export default function Home() {
                                 unoptimized 
                                 className="w-7 sm:w-9" 
                             />
-                            <div className={`flex flex-col items-center justify-center space-y-2 rounded-lg p-1 sm:px-3 ${dialogue[0] === "Seller" && "bg-[#efefef]"} ${dialogue[0] === "You" && "bg-[#036A8C1A]"} ${index === currentDialogueIndex && dialogue[0] === "You" && userSpeech && !isCorrect && "bg-[#FEDFDF]"}`}>
+                            <div className={`flex flex-col items-center justify-center space-y-1 rounded-lg p-1 sm:px-3 ${dialogue[0] === "Seller" && "bg-[#efefef]"} ${dialogue[0] === "You" && "bg-[#036A8C1A]"} ${index === currentDialogueIndex && dialogue[0] === "You" && userSpeech && !isCorrect && "bg-[#FEDFDF]"}`}>
                               <div className="flex items-center justify-center space-x-2">
                                 <button onClick={() => {
                                   playAudio(dialogue[2])
@@ -169,14 +180,14 @@ export default function Home() {
                                       className="w-3 sm:w-4" 
                                   />
                                 </button>
-                                <span className="text-sm sm:text-base lg:text-lg">{dialogue[1]}</span>
+                                <span className="text-xs sm:text-base lg:text-lg">{dialogue[1]}</span>
                               </div>
-                              <span>Translation: {dialogue[3]}</span>
+                              <span className="text-[10px] sm:text-sm">{dialogue[3]}</span>
                               {currentDialogueIndex < 17 && dialogue[0] === "You" && index === currentDialogueIndex && (
                 <div className="user-input flex items-center justify-center flex-col space-y-1">
                   {userSpeech !== "" && isCorrect ? null : <button onClick={startRecognition} className="rounded-3xl p-2 px-4 bg-[#036A8C] text-white flex items-center justify-center space-x-2 text-xs">
-                      <Image src={"/microphone.png"} alt="speak" width={15} height={15} />
-                      <span>
+                      <Image src={"/microphone.png"} alt="speak" width={13} height={12} />
+                      <span className="text-[11px] sm:text-sm lg:text-base">
                         {userSpeech === "" && "Speak"}
                         {userSpeech !== "" && !isCorrect && "Speak Again"}
                       </span>
@@ -189,14 +200,23 @@ export default function Home() {
                         </div>
                         </div>
                     </div>
-                ))}  
+                ))}
+                <div ref={lastTextRef} />  
             </div>
             
-          {currentDialogueIndex < 17 && <div className="border-t border-[#D9D9D9] w-full flex items-center justify-center z-10 py-2">
-            <button onClick={proceedToNext} className={dialogues[currentDialogueIndex][0] === "You" && `${allowContinue ? "bg-[#036A8C] text-white" : "bg-[#CACACA] text-[#9F9F9F]"} p-1 sm:p-3 flex items-center justify-center space-x-1 sm:space-x-2 rounded-3xl text-xs sm:text-sm md:text-base`} disabled={!allowContinue}>
+          {currentDialogueIndex > -1 && currentDialogueIndex < 15 && 
+          <div className="border-t border-[#D9D9D9] w-full flex items-center justify-center z-10 py-2">
+            {/* <button>Continue</button> */}
+            {/* dialogues[currentDialogueIndex][0] === "You" &&  */}
+            {dialogues[currentDialogueIndex][0] === "You" ? <button onClick={proceedToNext} className={`${allowContinue ? "bg-[#036A8C] text-white" : "bg-[#CACACA] text-[#9F9F9F]"} p-1 sm:p-3 flex items-center justify-center space-x-1 sm:space-x-2 rounded-3xl text-xs sm:text-sm md:text-base`} disabled={!allowContinue}>
               <Image src={allowContinue ? "/continue.png" : "/continueBlack.png"} alt="continue" width={20} height={20} className="w-4" />
               <span>Continue</span>
             </button>
+            :
+            <button className="bg-[#036A8C] text-white p-1 sm:p-3 flex items-center justify-center space-x-1 sm:space-x-2 rounded-3xl text-xs sm:text-sm md:text-base" onClick={proceedToNext}>
+              <Image src={"/continue.png"} alt="continue" width={20} height={20} className="w-4" />
+              <span>Continue</span>
+            </button>}
           </div>}
         </div>
       </div>
