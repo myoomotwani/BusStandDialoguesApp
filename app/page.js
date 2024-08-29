@@ -140,16 +140,18 @@ export default function Home() {
   return (
     <main className="bg-white py-1 xl:py-3 h-screen text-black overflow-x-hidden">
       <SnackbarProvider dense />
-      <div className="w-full flex flex-col space-y-1 sm:space-y-2 xl:space-y-3 items-center justify-center">
-        <span className="text-[#036A8C] font-extrabold text-2xl">Hindi Harmony</span>
-        <div className="bg-[url('/busStandImage.jpeg')] h-60 w-screen bg-bottom md:bg-center bg-cover bg-no-repeat bg-fixed"></div>
+      <div className="w-full flex flex-col space-y-1 lg:space-y-2 xl:space-y-3 items-center justify-center">
+        <span className="text-[#036A8C] font-extrabold text-lg md:text-xl xl:text-2xl">Hindi Harmony</span>
+        <div className="bg-[url('/busStandImage.jpeg')] h-56 sm:h-60 w-screen bg-bottom md:bg-center bg-cover bg-no-repeat bg-fixed"></div>
         <div className="w-[90%] sm:w-[80%] md:w-[70%] flex flex-col items-center justify-center shadow-[#00000017] shadow-lg drop-shadow-lg rounded-lg">
-          <div className="bg-[#036A8C] text-white text-xs sm:text-base rounded-t-lg px-3 py-1 md:p-3 w-full z-10">
-            Hindi Learning App - Bus Stand Dialogue
+          <div className="bg-[#036A8C] text-white text-xs sm:text-base rounded-t-lg px-3 py-1 xl:p-3 w-full lg:text-lg z-10">
+            Conversation at bus stand
           </div>
-          <div className="overflow-y-scroll w-full space-y-3 rounded-2xl p-3 h-60 sm:h-52 md:h-48 xl:h-56" ref={scrollableSectionRef}>
-            {currentDialogueIndex < 0 && <div className="flex items-center justify-center w-full h-full">
+          <div className="overflow-y-scroll w-full space-y-3 rounded-2xl p-3 h-60 sm:h-52 md:h-48 xl:h-60" ref={scrollableSectionRef}>
+            {currentDialogueIndex < 0 && <div className="flex flex-col space-y-2 items-center justify-center w-full h-full">
               <button onClick={proceedToNext} className="bg-green-500 rounded-3xl py-2 px-4 text-white">Start</button>
+              <span className="max-w-[80%] text-center">Practice speaking Hindi with this bus stand conversation about ticket booking. Speak your lines to keep the conversation going.
+              </span>
             </div>}
                 {dialogues.slice(0, currentDialogueIndex + 1).map((dialogue, index) => (
                     <div 
@@ -203,6 +205,8 @@ export default function Home() {
                 ))}
                 <div ref={lastTextRef} />  
             </div>
+
+            {currentDialogueIndex > 14 && isCorrect && <span className="px-3 py-1 sm:py-2 text-green-500 text-center text-[10px] sm:text-xs md:text-sm border-t border-green-500">Success!!!<br/>You&apos;ve practiced your speaking skills at a bus stand. You&apos;re now better equipped to handle the ticket booking process in Hindi.</span>}
             
           {currentDialogueIndex > -1 && currentDialogueIndex < 15 && 
           <div className="border-t border-[#D9D9D9] w-full flex items-center justify-center z-10 py-2">
